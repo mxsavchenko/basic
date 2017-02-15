@@ -1,43 +1,58 @@
 # -*- coding: utf-8 -*-
-# Autor Maxim Savchenko 2017/01/17 v1.1
+# Autor Maxim Savchenko 2017/02/15 v1.1
 import os, sys, re, datetime, time
+from subprocess import call
 ###############################
-# Количество потоков
-threads = 1
+# Путь к файлам с номерами телефонов
+file_path = '/var/samba/pbx/'
 # Таймаут обработки файлов
 timeout = 35
+# Путь к каталогу asterisk-outgoing
+path = '/tmp/calls/'
+# Текущая дата и время
+cur_date = datetime.datetime.strptime(datetime.datetime.now().strftime('%y%m%d%H%M.%S'),'%y%m%d%H%M.%S')
 # Массив номеров телефонов
 list_numbers = []
-# Счетчик
-list_count=0
-test_list=[]
-
-file = 'test.txt'
-if os.access(file, os.F_OK) or os.access(file, os.R_OK):
-    f = open(file, 'r')
-    for line in f:
+###############################
+all_files = os.listdir(file_path)
+if (len(all_files)) > 0:
+  for file in all_files:
+    if os.access(file_path+str(file), os.F_OK) or os.access(file_path+str(file), os.R_OK):
+      if re.search('^H',file):
+        call_type = 'obj'
+      else:
+        call_type = 'obz'
+      f = open(file_path+str(file), 'r')
+      for line in f:
         numbers = line.replace(' ', '').replace('\n','')
         if re.search('^\d{7}$', numbers):
-            list_numbers.append(numbers)
+          list_numbers.append(numbers)
         elif re.search(',',numbers):
-            numbers = numbers.split(',')
-            for number in numbers:
-                number =  number.replace(' ', '').replace('\n','')
-                if re.search('^\d{7}$', number):
-                    list_numbers.append(number)
-        list_count+=1
-    f.close()
-    print("Количество номеров для обзвона: "+str(list_count))
-    line_count =1
-    if list_count > 0:
-        for i in range(len(list_numbers)//threads + 1):
-            test_list.append(list_numbers[i*threads:i*threads+threads])
+          numbers = numbers.split(',')
+          for number in numbers:
+            number =  number.replace(' ', '').replace('\n','')
+            if re.search('^\d{7}$', number):
+              list_numbers.append(number)
+      f.close()
+      list_numbers = list(set(list_numbers))
+      if len(list_numbers) > 0:
+        for phone in list_numbers:
+          file_name = path+str(phone)
+          f = open(file_name, 'w')
+          f.write('Channel: SIP/vocaltec/38044'+phone+'\n'+
+          'Callerid: 380443793012'+'\n'+
+          'MaxRetries: 1'+'\n'+ <------># Количество повторных звонков(если первый раз не дозвонились)
+          'RetryTime: 3600'+'\n'+<-----># Через сколько секунд позвонить повторно
+          'WaitTime: 35'+'\n'+          # Ожидание вызова (в секундах)
+          'Context: '+call_type+'\n'+
+          'Extension: s'+'\n'+
+          'Priority: 1'+'\n'+
+          'Archive: Yes')
+          f.close()
+          cur_date = cur_date + datetime.timedelta(seconds=timeout)
+          new_date = cur_date.strftime('%y%m%d%H%M.%S')
+          call(["touch", "-t",new_date, file_name])
+      os.unlink(file_path+str(file))
+    else:
+      print("ERROR: incorrent file or permitions: "+files+str(file))
 
-else:
-    print("Внимание: возникла ошибка при чтении файла: "+file)
-test_list = list(filter(None, test_list))
-print (test_list)
-
-
-#date_of_create_file=time.strftime('%y%m%d%H%M.%S', time.gmtime(os.path.getmtime('test.txt')))
-#print (date_of_create_file)
