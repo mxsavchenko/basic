@@ -3,15 +3,15 @@
 import os, sys, re, datetime, time
 from subprocess import call
 ###############################
-# Путь к файлам с номерами телефонов
+# Path to call files
 file_path = '/var/samba/pbx/'
-# Таймаут обработки файлов
+# Timeout create files
 timeout = 35
-# Путь к каталогу asterisk-outgoing
+# Path to asterisk-outgoing
 path = '/tmp/calls/'
-# Текущая дата и время
+# Current date and time
 cur_date = datetime.datetime.strptime(datetime.datetime.now().strftime('%y%m%d%H%M.%S'),'%y%m%d%H%M.%S')
-# Массив номеров телефонов
+# Empty list phone numbers
 list_numbers = []
 ###############################
 all_files = os.listdir(file_path)
@@ -41,9 +41,9 @@ if (len(all_files)) > 0:
           f = open(file_name, 'w')
           f.write('Channel: SIP/vocaltec/38044'+phone+'\n'+
           'Callerid: 380443793012'+'\n'+
-          'MaxRetries: 1'+'\n'+         # Количество повторных звонков(если первый раз не дозвонились)
-          'RetryTime: 3600'+'\n'+       # Через сколько секунд позвонить повторно
-          'WaitTime: 35'+'\n'+          # Ожидание вызова (в секундах)
+          'MaxRetries: 1'+'\n'+
+          'RetryTime: 3600'+'\n'+
+          'WaitTime: 35'+'\n'+
           'Context: '+call_type+'\n'+
           'Extension: s'+'\n'+
           'Priority: 1'+'\n'+
@@ -54,5 +54,5 @@ if (len(all_files)) > 0:
           call(["touch", "-t",new_date, file_name])
       os.unlink(file_path+str(file))
     else:
-      print("ERROR: incorrent file or permitions: "+files+str(file))
+      print("ERROR: incorrent file or permission: "+files+str(file))
 
