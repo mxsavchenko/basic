@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-##
 ## Get data from windows active directory
-##
 import ldap3,re,sys,time
 
 ##################################
