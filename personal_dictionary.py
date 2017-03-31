@@ -3,9 +3,9 @@
 import ldap3,wget,re,socket,sys,os,requests,time,urllib2
 
 ##################################
-ad_user = ''
-ad_pass = ''
-ad_host = ''
+ad_user = 'host'
+ad_pass = 'user'
+ad_host = 'pass'
 ad_basedn = 'DC=host,DC=example,DC=com'
 ad_attr = ['sAMAccountName','name','telephoneNumber']
 ##################################
